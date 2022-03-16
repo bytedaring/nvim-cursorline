@@ -1,4 +1,6 @@
-local M = {}
+local M = {
+  exclude = {"qf", "fugitive", "nerdtree", "gundo", "diff", "fzf", "floaterm"}
+}
 
 local DISABLED = 0
 local CURSOR = 1
@@ -29,7 +31,26 @@ end
 local normal_bg = return_highlight_term("Normal", "guibg")
 local cursorline_bg = return_highlight_term("CursorLine", "guibg")
 
+function M.is_enabled()
+  local option = M.get_option()
+  for _, parser in pairs(M.exclude) do
+    vim.notify("------:xw " + option + "  ---  " + parser)
+    if option == parser then
+      return false
+    end
+  end
+  return true
+end
+
+function M.get_option(bufnr)
+  bufnr = bufnr or api.nvim_get_current_buf()
+  return api.nvim_buf_get_option(bufnr, "ft")
+end
+
 function M.highlight_cursorword()
+  if M.is_enabled == false then
+    return
+  end
   if g.cursorword_highlight ~= false then
     vim.cmd("highlight CursorWord term=underline cterm=underline gui=underline")
   end
